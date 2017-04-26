@@ -14,6 +14,8 @@ import random
 import busters
 import game
 import random
+from busters import getObservationDistributionNoisyWall
+from game import Directions
 
 class InferenceModule:
     """
@@ -108,8 +110,10 @@ class ExactInference(InferenceModule):
         You may find useful self.legalPositions which contains the possible
         positions in the map.
         """
-        #TODO: your code here
-        util.raiseNotDefined()
+        self.beliefs = util.Counter()
+        for p in self.legalPositions:
+            self.beliefs[p] = 1.0
+        self.beliefs.normalize()
 
 
 
@@ -130,10 +134,17 @@ class ExactInference(InferenceModule):
         perceptions.
 
         """
-        #TODO: your code here
-        util.raiseNotDefined()
-
-
+        #print(gameState)
+        pTP_gNW = getObservationDistributionNoisyWall(observationWalls)
+        tmp2 = util.Counter()
+        for state in self.beliefs:
+            key = ((Directions.NORTH, gameState.hasWall(state[0], state[1] + 1)),
+                   (Directions.SOUTH, gameState.hasWall(state[0], state[1] - 1)),
+                   (Directions.EAST, gameState.hasWall(state[0] + 1, state[1])),
+                   (Directions.WEST, gameState.hasWall(state[0] - 1, state[1])))
+            tmp2[state] = self.beliefs[state] * pTP_gNW[key]
+        self.beliefs = tmp2
+        self.beliefs.normalize()
 
 
     def elapseTime(self, gameState):
@@ -157,8 +168,14 @@ class ExactInference(InferenceModule):
 
         newPostDist[p] = Pr( pacman is at position p at time t + 1 | pacman is at position oldPos at time t )
         """
-        #TODO: Your code here:
-        util.raiseNotDefined()
+        print(gameState)
+        tmp2 = util.Counter()
+        for state in self.beliefs:
+            newPostDist = self.getPacmanSuccesorDistribution(gameState, state)
+            for k in newPostDist:
+                tmp2[k] += newPostDist[k] * self.beliefs[state]
+        tmp2.normalize()
+        self.beliefs = tmp2
 
     def getBeliefDistribution(self):
         return self.beliefs

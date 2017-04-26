@@ -58,8 +58,14 @@ def getObservationDistributionNoisyWall(noisyWall):
         return util.Counter()
 
     if noisyWall not in observationDistributionsWalls:
-        #TODO: your code here
-        util.raiseNotDefined()
+        tmp = util.Counter()
+        for wv in WALL_VALUES:
+            val = 1
+            for k in noisyWall:
+                val *= 1 - EPSILON if k in wv else EPSILON
+            tmp[wv] = val
+        tmp.normalize()
+        observationDistributionsWalls[noisyWall] = tmp
 
     return observationDistributionsWalls[noisyWall]
 
