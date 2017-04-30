@@ -77,14 +77,11 @@ class GameState:
     """
     A GameState specifies the full game state, including the food, capsules,
     agent configurations and score changes.
-
     GameStates are used by the Game object to capture the actual state of the game and
     can be used by agents to reason about the game.
-
     Much of the information in a GameState is stored in a GameStateData object.  We
     strongly suggest that you access that data via the accessor methods below rather
     than referring to the GameStateData object directly.
-
     Note that in classic Pacman, Pacman is always agent 0.
     """
 
@@ -150,7 +147,6 @@ class GameState:
     def getPacmanState( self ):
         """
         Returns an AgentState object for pacman (in game.py)
-
         state.pos gives the current position
         state.direction gives the travel vector
         """
@@ -177,10 +173,8 @@ class GameState:
     def getFood(self):
         """
         Returns a Grid of boolean food indicator variables.
-
         Grids can be accessed via list notation, so to check
         if there is food at (x,y), just call
-
         currentFood = state.getFood()
         if currentFood[x][y] == True: ...
         """
@@ -189,10 +183,8 @@ class GameState:
     def getWalls(self):
         """
         Returns a Grid of boolean wall indicator variables.
-
         Grids can be accessed via list notation, so to check
         if there is food at (x,y), just call
-
         walls = state.getWalls()
         if walls[x][y] == True: ...
         """
@@ -211,7 +203,6 @@ class GameState:
     def getLivingGhosts(self):
         """
         Returns a list of booleans indicating which ghosts are not yet captured.
-
         The first entry (a placeholder for Pacman's index) is always False.
         """
         return self.livingGhosts
@@ -597,11 +588,8 @@ if __name__ == '__main__':
     """
     The main function called when pacman.py is run
     from the command line:
-
     > python pacman.py
-
     See the usage string for more details.
-
     > python pacman.py --help
     """
     args = readCommand( sys.argv[1:] ) # Get game components based on input

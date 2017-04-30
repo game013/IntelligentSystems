@@ -92,7 +92,9 @@ class BustersAgent:
 
     def chooseAction(self, gameState):
         "By default, a BustersAgent just stops.  This should be overridden."
+        #print "********" + str(self.wallBeliefs)
         return Directions.STOP
+        #return self.wallBeliefs.argMax()
 
 class BustersKeyboardAgent(BustersAgent, KeyboardAgent):
     "An agent controlled by the keyboard that displays beliefs about ghost positions."
@@ -140,7 +142,34 @@ class GreedyBustersAgent(BustersAgent):
         You can access to the map via gameState.getWalls() or gameState.hasWall(x,y). Remember you must NOT
         make any assumptions about the pacman position beside what you can infer from the beliefs.
         """
-        #TODO: Put your code here
-        util.raiseNotDefined()
+        
+        #Finding the positions with maximum probability
+        maxPos = []
+        maxVal = max(self.wallBeliefs.values())
+        for p in self.wallBeliefs.sortedKeys():
+            if self.wallBeliefs[p] == maxVal:
+                maxPos.append(p)
+            else:
+                break
+        print maxPos
+        
+        #If there are more than 1 positions with max prob, choose the one 
+        #with the minimum lexicographic order
+        minLex = (1000,1000)
+        count = 0
+        for p in maxPos:
+            if p[0] <= minLex[0]:
+                count += 1
+                if count > 1:
+                    if p[1] <= minLex[1]:
+                        minLex = (p[0],p[1])
+                else:
+                    minLex = (p[0],p[1])
+        
+        """
+        Implement the search algorithms to find the best path from the pacman to the ghost
+        """
 
-
+        print "Max Positions: " + str(self.wallBeliefs.argMax()) + " : " + str(self.wallBeliefs[self.wallBeliefs.argMax()]) + ". MinLex: " + str(minLex)
+        return minLex
+   

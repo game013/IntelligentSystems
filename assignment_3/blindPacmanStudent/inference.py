@@ -17,6 +17,16 @@ import random
 from busters import getObservationDistributionNoisyWall
 from game import Directions
 
+def neighbors(position,gameState):
+
+        adj = 0
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            successorPosition = game.Actions.getSuccessor(position,action)
+            if not gameState.hasWall(int(successorPosition[0]),int(successorPosition[1])):
+                adj += 1
+
+        return adj > 0
+
 class InferenceModule:
     """
     An inference module tracks a belief distribution over pacman location.
@@ -50,14 +60,15 @@ class InferenceModule:
             x ,y = map(int,successorPosition)
             if gameState.hasWall(x,y) == False:
                 actions.append(action)
-
+                
         prob = 1.0 / float( len( actions ) )
         actionDist = [( action, prob ) for action in actions]
         for action,prob in actionDist:
             successorPosition = game.Actions.getSuccessor(position,action)
-            x ,y = map(int,successorPosition)
+            #x ,y = map(int,successorPosition)
+            successorPosition = map(int,successorPosition)
 
-            dist[successorPosition] = prob
+            dist[tuple(successorPosition)] = prob
 
         return dist
 
@@ -71,7 +82,7 @@ class InferenceModule:
     def initialize(self, gameState):
         "Initializes beliefs to a uniform distribution over all positions."
         # The legal positions do not include the ghost prison cells in the bottom left.
-        self.legalPositions = [p for p in gameState.getWalls().asList(False) if p[1] > 4]
+        self.legalPositions = [p for p in gameState.getWalls().asList(False) if p[1] >= 3 and neighbors(p,gameState) ]
 
         self.initializeUniformly(gameState)
 
@@ -116,26 +127,23 @@ class ExactInference(InferenceModule):
         self.beliefs.normalize()
 
 
-
     def observe(self, gameState, observationWalls):
         """
         Updates self.beliefs based on the perception of the current
         *unknown* position of the pacman.
-
         The observationWalls is a noisy perception of whether is a wall or not
         in the four adjacent locations (North,Sout,East,West). This amount of
         noise is given by an Epsilon (See busters.EPSILON).
-
         self.legalPositions is a list of the possible pacman positions (you
         should only consider positions that are in self.legalPositions).
-
         Remember that you *don't* know the pacman position and you must not
         make any direct assumptions about it, just what you can infer from the
         perceptions.
-
         """
-        #print(gameState)
+        #print gameState
+        #print observationWalls
         pTP_gNW = getObservationDistributionNoisyWall(observationWalls)
+        #print pTP_gNW 
         tmp2 = util.Counter()
         for state in self.beliefs:
             key = ((Directions.NORTH, gameState.hasWall(state[0], state[1] + 1)),
@@ -145,37 +153,38 @@ class ExactInference(InferenceModule):
             tmp2[state] = self.beliefs[state] * pTP_gNW[key]
         self.beliefs = tmp2
         self.beliefs.normalize()
+        #print "From observe: " + str(self.beliefs)
 
-
+    
     def elapseTime(self, gameState):
         """
         Update self.beliefs in response to a time step passing from the current
         state.
-
         The model is updated to incorporate the knowledge acquired from the previous
         time. In order to obtain the distribution over new positions for the pacman,
         given its previous position (oldPos) use this line of code:
-
         newPostDist = self.getPacmanSuccesorDistribution(gameState,oldPos)
-
         Note that you may need to replace "oldPos" with the correct name of the
         variable that you have used to refer to the previous pacman position for
         which you are computing this distribution. You will need to compute
         multiple position distributions for a single update.
-
         newPosDist is a util.Counter object, where for each position p in
         self.legalPositions,
-
         newPostDist[p] = Pr( pacman is at position p at time t + 1 | pacman is at position oldPos at time t )
         """
-        print(gameState)
+        #print(gameState)
+        #print "Beliefs: " + str(self.beliefs)
         tmp2 = util.Counter()
         for state in self.beliefs:
             newPostDist = self.getPacmanSuccesorDistribution(gameState, state)
             for k in newPostDist:
                 tmp2[k] += newPostDist[k] * self.beliefs[state]
+                #print str(k) + ";" + str(state) + ";" + str(newPostDist[k]) + ";" + str(tmp2[k])
+                #tmp2[k] += newPostDist[k] * self.beliefs[k]
         tmp2.normalize()
         self.beliefs = tmp2
+        #print "Tmp2: " + str(tmp2)
+
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -183,7 +192,6 @@ class ExactInference(InferenceModule):
 class ParticleFilter(InferenceModule):
     """
     A particle filter for finding a single ghost.
-
     Useful helper functions will include random.choice, which chooses
     an element from a list uniformly at random, and util.sample, which
     samples a key from a Counter by treating its values as probabilities.
@@ -205,7 +213,6 @@ class ParticleFilter(InferenceModule):
           Use self.legalPositions for the legal board positions where a particle could be located.
           Particles should be evenly (not randomly) distributed across positions in order to
           ensure a uniform prior.
-
           ** NOTE **
             the variable you store your particles in must be a list; a list is simply a collection
             of unweighted variables (positions in this case). Storing your particles as a Counter or
@@ -221,14 +228,11 @@ class ParticleFilter(InferenceModule):
         handle the special case where all particles have weight 0 after
         reweighting based on observation. If this happens, resample particles
         uniformly at random from the set of legal positions (self.legalPositions).
-
         Remember that when all particles receive 0 weight, they should be recreated from
         the prior distribution by calling initializeUniformly. The total
         weight for a belief distribution can be found by calling totalCount on a Counter object.
-
         util.sample(Counter object) is a helper method to generate a sample from
         a belief distribution.
-
         """
         #TODO: your code here
         util.raiseNotDefined()
@@ -236,14 +240,10 @@ class ParticleFilter(InferenceModule):
     def elapseTime(self, gameState):
         """
         Update beliefs for a time step elapsing.
-
         As in the elapseTime method of ExactInference, you should use:
-
         newPostDist = self.getPacmanSuccesorDistribution(gameState,oldPos)
-
         to obtain the distribution over new positions for the pacman, given its
         previous position (oldPos).
-
         util.sample(Counter object) is a helper method to generate a sample from
         a belief distribution.
         """
