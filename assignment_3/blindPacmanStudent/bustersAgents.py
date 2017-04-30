@@ -151,7 +151,7 @@ class GreedyBustersAgent(BustersAgent):
                 maxPos.append(p)
             else:
                 break
-        print maxPos
+        #print maxPos
         
         #If there are more than 1 positions with max prob, choose the one 
         #with the minimum lexicographic order
@@ -178,10 +178,12 @@ class GreedyBustersAgent(BustersAgent):
             successorPosition = Actions.getSuccessor(minLex,action)
             if not gameState.hasWall(int(successorPosition[0]),int(successorPosition[1])):
                 neighbors[action] = distancer.getDistance( (1,3), successorPosition )
-        
+
+        """
         print neighbors
         print neighbors.sortedKeys()
         print "Dist to ghost: " + str(distancer.getDistance( (1,3), minLex))
         print "best direction: " + str(neighbors.sortedKeys()[len(neighbors.sortedKeys()) - 1])
+        """
         
         return neighbors.sortedKeys()[len(neighbors.sortedKeys()) - 1]
