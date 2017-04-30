@@ -21,11 +21,11 @@ observe: "False"
 elapse: "True"
 
 checkUniform: "False"
-maxMoves: "69"
+maxMoves: "67"
 
 numGhosts: "1"
 ghost: "StaticGhostAgent"
 errorMsg: "Exact inference elapseTime test: %d inference errors."
 inference: "ExactInference"
-L2Tolerance: "0.0001"
+L2Tolerance: "0.001"
 

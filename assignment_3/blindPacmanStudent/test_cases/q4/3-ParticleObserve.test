@@ -19,7 +19,7 @@ observe: "True"
 elapse: "False"
 
 checkUniform: "False"
-maxMoves: "34"
+maxMoves: "32"
 
 numGhosts: "1"
 ghost: "StaticGhostAgent"
