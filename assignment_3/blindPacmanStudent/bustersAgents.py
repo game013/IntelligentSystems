@@ -169,7 +169,19 @@ class GreedyBustersAgent(BustersAgent):
         """
         Implement the search algorithms to find the best path from the pacman to the ghost
         """
-
-        print "Max Positions: " + str(self.wallBeliefs.argMax()) + " : " + str(self.wallBeliefs[self.wallBeliefs.argMax()]) + ". MinLex: " + str(minLex)
-        return minLex
-   
+        #Distancer
+        distancer = Distancer(gameState.data.layout)
+    
+        #FInding the distance from the nextPositions to the Ghost
+        neighbors = util.Counter()
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            successorPosition = Actions.getSuccessor(minLex,action)
+            if not gameState.hasWall(int(successorPosition[0]),int(successorPosition[1])):
+                neighbors[action] = distancer.getDistance( (1,3), successorPosition )
+        
+        print neighbors
+        print neighbors.sortedKeys()
+        print "Dist to ghost: " + str(distancer.getDistance( (1,3), minLex))
+        print "best direction: " + str(neighbors.sortedKeys()[len(neighbors.sortedKeys()) - 1])
+        
+        return neighbors.sortedKeys()[len(neighbors.sortedKeys()) - 1]
