@@ -219,8 +219,7 @@ class ParticleFilter(InferenceModule):
             dictionary (where there could be an associated weight with each position) is incorrect
             and will produce errors
         """
-        #TODO: your code here
-        util.raiseNotDefined()
+        self.particles = [self.legalPositions[x % len(self.legalPositions)] for x in xrange(self.numParticles)]
 
     def observe(self, gameState, observationWalls):
         """
@@ -234,8 +233,19 @@ class ParticleFilter(InferenceModule):
         util.sample(Counter object) is a helper method to generate a sample from
         a belief distribution.
         """
-        #TODO: your code here
-        util.raiseNotDefined()
+        pTP_gNW = getObservationDistributionNoisyWall(observationWalls)
+        tmp = util.Counter()
+        for pos in self.particles:
+            key = ((Directions.NORTH, gameState.hasWall(pos[0], pos[1] + 1)),
+                   (Directions.SOUTH, gameState.hasWall(pos[0], pos[1] - 1)),
+                   (Directions.EAST, gameState.hasWall(pos[0] + 1, pos[1])),
+                   (Directions.WEST, gameState.hasWall(pos[0] - 1, pos[1])))
+            tmp[pos] += pTP_gNW[key]
+        if tmp.totalCount() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            for i in xrange(self.numParticles):
+                self.particles[i] = util.sample(tmp)
 
     def elapseTime(self, gameState):
         """
@@ -247,8 +257,11 @@ class ParticleFilter(InferenceModule):
         util.sample(Counter object) is a helper method to generate a sample from
         a belief distribution.
         """
-        #TODO: your code here
-        util.raiseNotDefined()
+        tmp = [None] * self.numParticles
+        for i, state in enumerate(self.particles):
+            newPostDist = self.getPacmanSuccesorDistribution(gameState, state)
+            tmp[i] = util.sample(newPostDist)
+        self.particles = tmp
 
     def getBeliefDistribution(self):
         """
@@ -257,5 +270,9 @@ class ParticleFilter(InferenceModule):
         essentially converts a list of particles into a belief distribution (a
         Counter object)
         """
-        #TODO: your code here
-        util.raiseNotDefined()
+        beliefs = util.Counter()
+        for pos in self.particles:
+            beliefs[pos] += 1
+        beliefs.normalize()
+        print "====", beliefs
+        return beliefs
