@@ -274,5 +274,4 @@ class ParticleFilter(InferenceModule):
         for pos in self.particles:
             beliefs[pos] += 1
         beliefs.normalize()
-        print "====", beliefs
         return beliefs
